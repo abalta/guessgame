@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/create.css">
+    <title>SallaMation</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h5>Oyun PIN'i:</h5>
+                <h2 id="gamePin">xxx xxx</h2>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="top-section">
+                <div class="left-align">
+                    <div class="counter user-counter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span id="userCount">0</span>
+                    </div>
+
+                    <div class="counter user-counter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span id="divTimer">0</span>
+                    </div>
+                </div>
+                <div class="center-align">
+                    <img src="/images/salla_mation.png" alt="logo" />
+                </div>
+                <div class="right-align">
+                    <button id='btnCreate'>New Game</button>
+                    <button id='btnStart' hidden>Start Game</button>
+                    <button id='btnNext' hidden>Next Question</button>
+                </div>
+            </div>
+            <div class="body">
+                <div class="players" id='divPlayers'></div>
+                <div class="question-wr">
+                    <h1 class="questions" id="titleWait">Oyuncular bekleniyor...</h1>
+                    <div class="questions" id='divQuestions' hidden></div>
+                </div>
+                <div class="podium" id='divPodium'></div>
+            </div>
+            <div class="square"></div>
+            <div class="circle"></div>
+
+
+        </div>
+    </div>
+
+    <script>
+        let clientId = null;
+        let gameId = null;
+        let questionIndex = 0;
+        let counter = 30;
+        let user_count = 0;
+        let ws = new WebSocket("ws://localhost:9090")
+        const btnCreate = document.getElementById("btnCreate");
+        const btnStart = document.getElementById("btnStart");
+        const divPlayers = document.getElementById("divPlayers");
+        const btnNext = document.getElementById("btnNext");
+        const titleWait = document.getElementById("titleWait");
+
+        btnCreate.addEventListener("click", e => {
+            btnStart.style.display = "block"
+            btnCreate.style.display = "none"
+            const payLoad = {
+                "method": "create",
+                "clientId": clientId,
+                "role": "admin"
+            }
+
+            ws.send(JSON.stringify(payLoad));
+
+        })
+
+        btnStart.addEventListener("click", e => {
+            divPlayers.style.display = "none"
+            btnStart.style.display = "none"
+            btnNext.style.display = "block"
+            divQuestions.removeAttribute("hidden");
+
+            const payLoad = {
+                "method": "guess",
+                "index": questionIndex
+            }
+
+            questionIndex = questionIndex + 1
+
+            ws.send(JSON.stringify(payLoad));
+
+        })
+
+        btnNext.addEventListener("click", e => {
+            const payLoad = {
+                "method": "guess",
+                "index": questionIndex
+            }
+
+            questionIndex = questionIndex + 1
+
+            ws.send(JSON.stringify(payLoad));
+        })
+
+        function timedCount() {
+            divTimer.textContent = counter;
+            counter--;
+            timeout = setTimeout(timedCount, 1000);
+            if (counter === 0) {
+                divTimer.textContent = counter;
+                clearTimeout(timeout);
+                const payLoad = {
+                    "method": "calculate"
+                }
+                ws.send(JSON.stringify(payLoad));
+            }
+
+        }
+
+        ws.onmessage = message => {
+            console.log(message);
+            const response = JSON.parse(message.data);
+
+            //connect
+            if (response.method === "connect") {
+                clientId = response.clientId
+                console.log("Client id Set successfully " + clientId)
+            }
+
+            //create
+            if (response.method === "create") {
+                gameId = response.game.id;
+                const gameElement = document.getElementById("gamePin");
+                if (gameElement) {
+                    gameElement.textContent = gameId;
+                }
+            }
+
+            //join
+            if (response.method === "join") {
+              user_count = user_count + 1;
+              userCount.textContent = user_count;
+              console.log(titleWait);
+              console.log("display " + titleWait.style.display);
+              console.log(titleWait.style.display);
+              titleWait.style.display = "none"
+                const game = response.game;
+
+                while (divPlayers.firstChild)
+                    divPlayers.removeChild(divPlayers.firstChild)
+
+                game.clients.forEach(c => {
+                    const d = document.createElement("div");
+                    d.setAttribute('id', c.clientId);
+                    d.classList.add("player");
+                    d.textContent = c.username;
+                    divPlayers.appendChild(d);
+                })
+            }
+
+            if (response.method === "guess") {
+                const question = response.question;
+                divQuestions.textContent = question;
+                counter = 30;
+                timedCount()
+            }
+
+            if (response.method === "calculate") {
+                divPodium.innerHTML = "";
+                console.log(response.podium);
+                response.podium.forEach((podium) => {
+                    const div = document.createElement("div");
+                    div.classList.add("podium-el");
+
+                    const p = document.createElement("p");
+                    p.textContent = podium[1].username;
+
+                    const s = document.createElement("span");
+                    s.textContent = podium[1].total;
+
+                    div.appendChild(p);
+                    div.appendChild(s);
+                    divPodium.appendChild(div);
+                })
+            }
+
+            if (response.method === "player_left") {
+              if(user_count > 0) {
+                user_count = user_count - 1;
+                userCount.textContent = user_count;
+                divPlayers.removeChild(document.getElementById(response.clientId));
+              }
+            }
+        }
+    </script>
+</body>
+
+</html>

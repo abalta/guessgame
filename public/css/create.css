@@ -1,0 +1,226 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #46168f;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+h1,
+p,
+h2,
+h3,
+h4,
+h5 {
+    margin: 0;
+}
+
+.container {
+    margin: 0 auto;
+    display: flex;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.container .header {
+    background: #25076B;
+    height: 130px;
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container .header .header-content {
+    background: #fff;
+    max-width: 500px;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-direction: column;
+}
+
+.container .header .header-content h5 {
+    font-size: 18px;
+    line-height: 24px;
+}
+
+.container .header .header-content h2 {
+    font-size: 42px;
+    font-weight: bolder;
+}
+
+.content-wrapper {
+    width: 100%;
+    padding: 15px;
+}
+
+.content-wrapper .top-section {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: row;
+}
+
+.content-wrapper .left-align .user-counter {
+    background: #1D0543;
+    padding: 10px 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    max-width: 110px;
+    max-height: 40px;
+}
+
+.counter {
+    margin-right: 10px;
+}
+
+.content-wrapper .left-align {
+    flex: 0.5;
+    display: flex;
+    flex-direction: row;
+}
+
+.content-wrapper .center-align {
+    flex: 1;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.content-wrapper .right-align {
+    flex: 0.5;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.content-wrapper .left-align .user-counter span {
+    font-size: 20px;
+    font-weight: bolder;
+    color: #fff;
+    padding-left: 5px;
+}
+
+.content-wrapper .center-align img {
+    max-width: 120px;
+}
+
+.content-wrapper .right-align button {
+    background: rgb(51, 51, 51);
+    border: 0;
+    border-radius: 4px;
+    height: 44px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    border: 2px solid #fff;
+}
+
+content-wrapper .right-align button:hover {
+    opacity: .8;
+}
+
+.content-wrapper .square {
+    z-index: -1;
+    width: 700px;
+    height: 700px;
+    background: #3F1481;
+    pointer-events: none;
+    position: absolute;
+    top: -200px;
+    left: 0;
+    transform: rotate(45deg);
+}
+
+.content-wrapper .circle {
+    z-index: -1;
+    width: 700px;
+    height: 700px;
+    background: #3F1481;
+    pointer-events: none;
+    position: absolute;
+    bottom: -200px;
+    right: -50px;
+    border-radius: 9999px;
+}
+
+.content-wrapper .body {
+    padding: 10px;
+}
+
+.content-wrapper .players {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(12, 1fr);
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+}
+
+.content-wrapper .question-wr {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-wrapper .questions {
+    background: #fff;
+    opacity: 1;
+    font-size: 32px;
+    padding: 30px;
+    border-radius: 4px;
+    color: #3F1481;
+    margin-top: 50px;
+    font-weight: bolder;
+}
+
+.content-wrapper .players .player {
+    background: #1D0543;
+    color: #fff;
+    font-weight: bolder;
+    padding: 10px;
+    border-bottom: 2px solid #fff;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.content-wrapper .podium {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.content-wrapper .podium .podium-el {
+    display: flex;
+    width: 100%;
+    max-width: 540px;
+    background: #fff;
+    color: #1D0543;
+    justify-content: space-between;
+    padding: 5px;
+    margin-bottom: 5px;
+    font-size: 24px;
+    font-weight: bolder;
+    border-radius: 4px;
+}

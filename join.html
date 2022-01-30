@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/join.css">
+    <title>SallaMation - Join</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/images/salla_mation.png" alt="logo" />
+        </div>
+        <div class="content-wrapper" id='divContent'>
+            <div class="square"></div>
+            <div class="circle"></div>
+            <div class="footer">
+                <p>Coding: Abdullah Balta</p>
+                <p>Design: Serhan Erturk</p>
+            </div>
+            <input type='text' id='txtGameId' placeholder="Pin">
+            <input type='text' id='txtUsername' placeholder="Username">
+            <button id='btnJoin'>Join Game</button>
+            <div id='formGuess' hidden=true>
+                <input type='number' id='txtAnswer' placeholder="Tahminini gir">
+                <button id='btnSubmit'>Tahmini Gönder</button>
+            </div>
+            <div id='divResult' hidden=true>
+                <h2 class="result_title" id="resultTitle"></h2>
+                <p class="result_text" id="resultText"></p>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        window.onbeforeunload = function(event) {
+            var message = 'Important: Please click on \'Save\' button to leave this page.';
+            if (typeof event == 'undefined') {
+                event = window.event;
+            }
+            if (event) {
+                event.returnValue = message;
+            }
+            return message;
+        };
+
+        let gameId = null;
+        let username = null;
+        let clientId = null;
+        let score = 0;
+        let ws = new WebSocket("ws://localhost:9090")
+        const btnJoin = document.getElementById("btnJoin");
+        const btnSubmit = document.getElementById("btnSubmit");
+        const divContent = document.getElementById("divContent");
+        const divResult = document.getElementById("divResult");
+        const resultTitle = document.getElementById("resultTitle");
+        const resultText = document.getElementById("resultText");
+
+        btnJoin.addEventListener("click", e => {
+          if (txtGameId.value !== "" && txtUsername.value !== "") {
+            btnJoin.style.display = "none"
+            txtGameId.style.display = "none"
+            txtUsername.style.display = "none"
+            const welcomeTitle = document.createElement("h3");
+            const welcomeText = document.createElement("p");
+            welcomeTitle.setAttribute('id', "welcomeTitle");
+            welcomeText.setAttribute('id', "welcomeText");
+            welcomeTitle.classList.add("welcomeTitle");
+            welcomeText.classList.add("welcomeText");
+            welcomeTitle.textContent = "Girdin!"
+            welcomeText.textContent = "Takma adını ekranda görüyor musun?"
+            divContent.appendChild(welcomeTitle);
+            divContent.appendChild(welcomeText);
+            if (gameId === null)
+                gameId = txtGameId.value;
+
+            if (username === null)
+                username = txtUsername.value
+
+            const payLoad = {
+                "method": "join",
+                "clientId": clientId,
+                "gameId": gameId,
+                "username": username,
+                "role": "player"
+            }
+
+            ws.send(JSON.stringify(payLoad));
+          } else {
+              alert("Lütfen geçerli bir pin ve kullanıcı adı giriniz.");
+          }
+        })
+
+        btnSubmit.addEventListener("click", e => {
+            const payLoad = {
+                "method": "answer",
+                "clientId": clientId,
+                "answer": txtAnswer.value,
+                "username": username,
+                "score": score
+            }
+            ws.send(JSON.stringify(payLoad));
+        })
+
+        ws.onopen = open => {
+            const payLoad = {
+                "method": "connect"
+            }
+            ws.send(JSON.stringify(payLoad));
+        }
+
+        ws.onmessage = message => {
+            const response = JSON.parse(message.data)
+            console.log(response);
+
+            //connect
+            if (response.method === "connect") {
+                clientId = response.clientId
+                console.log("Client id Set successfully " + clientId)
+            }
+
+            //guess
+            if (response.method === "guess") {
+                formGuess.style.display = "block"
+                divResult.style.display = "none"
+                divContent.removeChild(document.getElementById("welcomeTitle"));
+                divContent.removeChild(document.getElementById("welcomeText"));
+            }
+
+            //answer
+            if (response.method == "answer") {
+               divResult.style.display = "block"
+               formGuess.style.display = "none"
+                score = response.total;
+                const guess = response.score;
+                if(guess > 0) {
+                   resultTitle.textContent = "Tahminin yukarıda!!!"
+                   resultText.textContent = "+".concat(guess);
+                } else if(guess < 0) {
+                  resultTitle.textContent = "Tahminin aşağıda!!!"
+                  resultText.textContent = guess;
+                } else {
+                  resultTitle.textContent = "Tam isabet!!!"
+                  resultText.textContent = guess;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
