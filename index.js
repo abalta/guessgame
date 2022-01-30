@@ -1,3 +1,4 @@
+const functions = require('firebase-functions');
 const http = require("http");
 const express = require("express");
 const WebSocket = require('ws');
@@ -10,7 +11,7 @@ app.use(express.static("public"));
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"))
 app.get("/join", (req, res) => res.sendFile(__dirname + "/join.html"))
 
-app.listen(9091, () => console.log("Listening on http port 9091"))
+//app.listen(9091, () => console.log("Listening on http port 9091"))
 
 const clients = new Map();
 const questions = new Map();
