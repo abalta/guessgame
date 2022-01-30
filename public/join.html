@@ -51,7 +51,7 @@
         let username = null;
         let clientId = null;
         let score = 0;
-        let ws = new WebSocket("ws://guessgame-33328.web.app:9090")
+        let ws = new WebSocket(location.origin.replace(/^http/, 'wss'))
         //let ws = new WebSocket("ws://localhost:9090")
         const btnJoin = document.getElementById("btnJoin");
         const btnSubmit = document.getElementById("btnSubmit");
