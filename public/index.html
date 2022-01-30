@@ -1,89 +1,204 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/create.css">
+    <title>SallaMation</title>
+</head>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.6.5/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.6.5/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.6.5/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h5>Oyun PIN'i:</h5>
+                <h2 id="gamePin">xxx xxx</h2>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="top-section">
+                <div class="left-align">
+                    <div class="counter user-counter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span id="userCount">0</span>
+                    </div>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+                    <div class="counter user-counter">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clock"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span id="divTimer">0</span>
+                    </div>
+                </div>
+                <div class="center-align">
+                    <img src="/images/salla_mation.png" alt="logo" />
+                </div>
+                <div class="right-align">
+                    <button id='btnCreate'>New Game</button>
+                    <button id='btnStart' hidden>Start Game</button>
+                    <button id='btnNext' hidden>Next Question</button>
+                </div>
+            </div>
+            <div class="body">
+                <div class="players" id='divPlayers'></div>
+                <div class="question-wr">
+                    <h1 class="questions" id="titleWait">Oyuncular bekleniyor...</h1>
+                    <div class="questions" id='divQuestions' hidden></div>
+                </div>
+                <div class="podium" id='divPodium'></div>
+            </div>
+            <div class="square"></div>
+            <div class="circle"></div>
+
+
+        </div>
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        let clientId = null;
+        let gameId = null;
+        let questionIndex = 0;
+        let counter = 30;
+        let user_count = 0;
+        let ws = new WebSocket("ws://localhost:9090")
+        const btnCreate = document.getElementById("btnCreate");
+        const btnStart = document.getElementById("btnStart");
+        const divPlayers = document.getElementById("divPlayers");
+        const btnNext = document.getElementById("btnNext");
+        const titleWait = document.getElementById("titleWait");
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e: any) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+        btnCreate.addEventListener("click", e => {
+            btnStart.style.display = "block"
+            btnCreate.style.display = "none"
+            const payLoad = {
+                "method": "create",
+                "clientId": clientId,
+                "role": "admin"
+            }
+
+            ws.send(JSON.stringify(payLoad));
+
+        })
+
+        btnStart.addEventListener("click", e => {
+            divPlayers.style.display = "none"
+            btnStart.style.display = "none"
+            btnNext.style.display = "block"
+            divQuestions.removeAttribute("hidden");
+
+            const payLoad = {
+                "method": "guess",
+                "index": questionIndex
+            }
+
+            questionIndex = questionIndex + 1
+
+            ws.send(JSON.stringify(payLoad));
+
+        })
+
+        btnNext.addEventListener("click", e => {
+            const payLoad = {
+                "method": "guess",
+                "index": questionIndex
+            }
+
+            questionIndex = questionIndex + 1
+
+            ws.send(JSON.stringify(payLoad));
+        })
+
+        function timedCount() {
+            divTimer.textContent = counter;
+            counter--;
+            timeout = setTimeout(timedCount, 1000);
+            if (counter === 0) {
+                divTimer.textContent = counter;
+                clearTimeout(timeout);
+                const payLoad = {
+                    "method": "calculate"
+                }
+                ws.send(JSON.stringify(payLoad));
+            }
+
         }
-      });
+
+        ws.onmessage = message => {
+            console.log(message);
+            const response = JSON.parse(message.data);
+
+            //connect
+            if (response.method === "connect") {
+                clientId = response.clientId
+                console.log("Client id Set successfully " + clientId)
+            }
+
+            //create
+            if (response.method === "create") {
+                gameId = response.game.id;
+                const gameElement = document.getElementById("gamePin");
+                if (gameElement) {
+                    gameElement.textContent = gameId;
+                }
+            }
+
+            //join
+            if (response.method === "join") {
+              user_count = user_count + 1;
+              userCount.textContent = user_count;
+              console.log(titleWait);
+              console.log("display " + titleWait.style.display);
+              console.log(titleWait.style.display);
+              titleWait.style.display = "none"
+                const game = response.game;
+
+                while (divPlayers.firstChild)
+                    divPlayers.removeChild(divPlayers.firstChild)
+
+                game.clients.forEach(c => {
+                    const d = document.createElement("div");
+                    d.setAttribute('id', c.clientId);
+                    d.classList.add("player");
+                    d.textContent = c.username;
+                    divPlayers.appendChild(d);
+                })
+            }
+
+            if (response.method === "guess") {
+                const question = response.question;
+                divQuestions.textContent = question;
+                counter = 30;
+                timedCount()
+            }
+
+            if (response.method === "calculate") {
+                divPodium.innerHTML = "";
+                console.log(response.podium);
+                response.podium.forEach((podium) => {
+                    const div = document.createElement("div");
+                    div.classList.add("podium-el");
+
+                    const p = document.createElement("p");
+                    p.textContent = podium[1].username;
+
+                    const s = document.createElement("span");
+                    s.textContent = podium[1].total;
+
+                    div.appendChild(p);
+                    div.appendChild(s);
+                    divPodium.appendChild(div);
+                })
+            }
+
+            if (response.method === "player_left") {
+              if(user_count > 0) {
+                user_count = user_count - 1;
+                userCount.textContent = user_count;
+                divPlayers.removeChild(document.getElementById(response.clientId));
+              }
+            }
+        }
     </script>
-  </body>
+</body>
+
 </html>
