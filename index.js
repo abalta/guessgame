@@ -11,7 +11,10 @@ app.use(express.static("public"));
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"))
 app.get("/join", (req, res) => res.sendFile(__dirname + "/join.html"))
 
-const server = app.listen(9091, () => console.log("Listening on http port 9091"))
+app.listen(9091, () => console.log("Listening on http port 9091"))
+
+exports.app = functions.https.onRequest(app);
+
 
 const clients = new Map();
 const questions = new Map();
@@ -41,7 +44,7 @@ const dbRef = database.ref().once('value', (snapshot) => {
   })
 });
 
-const wsServer = new WebSocket.Server({server});
+const wsServer = new WebSocket.Server({ port: 9090 });
 
 wsServer.on("connection", connection => {
     const id = uuid();
