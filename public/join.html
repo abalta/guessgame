@@ -51,6 +51,7 @@
         let username = null;
         let clientId = null;
         let score = 0;
+        let isAnswer = false;
         let ws = new WebSocket("ws://localhost:9090")
         const btnJoin = document.getElementById("btnJoin");
         const btnSubmit = document.getElementById("btnSubmit");
@@ -61,24 +62,8 @@
 
         btnJoin.addEventListener("click", e => {
           if (txtGameId.value !== "" && txtUsername.value !== "" && txtUsername.value.length < 20) {
-            btnJoin.style.display = "none"
-            txtGameId.style.display = "none"
-            txtUsername.style.display = "none"
-            const welcomeTitle = document.createElement("h3");
-            const welcomeText = document.createElement("p");
-            welcomeTitle.setAttribute('id', "welcomeTitle");
-            welcomeText.setAttribute('id', "welcomeText");
-            welcomeTitle.classList.add("welcomeTitle");
-            welcomeText.classList.add("welcomeText");
-            welcomeTitle.textContent = "Girdin!"
-            welcomeText.textContent = "Takma adını ekranda görüyor musun?"
-            divContent.appendChild(welcomeTitle);
-            divContent.appendChild(welcomeText);
-            if (gameId === null)
-                gameId = txtGameId.value;
-
-            if (username === null)
-                username = txtUsername.value
+              gameId = txtGameId.value;
+              username = txtUsername.value
 
             const payLoad = {
                 "method": "join",
@@ -128,6 +113,7 @@
 
             //guess
             if (response.method === "guess") {
+                isAnswer = false;
                 formGuess.style.display = "block"
                 divResult.style.display = "none"
                 divContent.removeChild(document.getElementById("welcomeTitle"));
@@ -136,6 +122,7 @@
 
             //answer
             if (response.method == "answer") {
+               isAnswer = true;
                divResult.style.display = "block"
                formGuess.style.display = "none"
                 score = response.total;
@@ -153,11 +140,32 @@
             }
 
             //calculate
-            if (response.method == "calculate") {
+            if (response.method == "calculate" && isAnswer == false) {
               divResult.style.display = "block"
               formGuess.style.display = "none"
               resultTitle.textContent = "Süre bitti!!!"
               resultText.textContent = "Cevabın 0 (Sıfır) olarak kabul edildi."
+            }
+
+            //notagame
+            if (response.method == "non_valid_game") {
+              alert("Girilen pin geçersiz veya girilmeye çalışılan oyun zaten başlamış.");
+            }
+
+            if(response.method == "join") {
+              btnJoin.style.display = "none"
+              txtGameId.style.display = "none"
+              txtUsername.style.display = "none"
+              const welcomeTitle = document.createElement("h3");
+              const welcomeText = document.createElement("p");
+              welcomeTitle.setAttribute('id', "welcomeTitle");
+              welcomeText.setAttribute('id', "welcomeText");
+              welcomeTitle.classList.add("welcomeTitle");
+              welcomeText.classList.add("welcomeText");
+              welcomeTitle.textContent = "Girdin!"
+              welcomeText.textContent = "Takma adını ekranda görüyor musun?"
+              divContent.appendChild(welcomeTitle);
+              divContent.appendChild(welcomeText);
             }
         }
 

@@ -16,6 +16,7 @@ const clients = new Map();
 const questions = new Map();
 const podium = new Map();
 
+let gameAlreadyStarted = false;
 let questionIndex = 0;
 
 const games = {};
@@ -90,7 +91,7 @@ wsServer.on("connection", connection => {
 
             client.role = role;
             client.gameId = gameId;
-
+            if(game !== undefined && gameAlreadyStarted == false) {
             game.clients.push({
                 "clientId": id,
                 "username": username,
@@ -105,14 +106,26 @@ wsServer.on("connection", connection => {
             };
 
             [...clients.keys()].forEach((connection) => {
+              if (clients.get(connection).id === id || clients.get(connection).role === "admin") {
                 connection.send(JSON.stringify(payLoad));
+              }
             });
+          } else {
+            let payLoad = {
+                "method": "non_valid_game"
+            };
 
+            [...clients.keys()].forEach((connection) => {
+              if (clients.get(connection).id === id) {
+                connection.send(JSON.stringify(payLoad));
+              }
+            });
+          }
         }
 
         //a user plays
         if (result.method === "guess") {
-
+          gameAlreadyStarted = true;
           questionIndex = result.index;
 
           if(questionIndex === questions.size) {
@@ -204,9 +217,10 @@ wsServer.on("connection", connection => {
       };
       const gameId = clients.get(connection).gameId;
       if (clients.get(connection).role === "admin") {
+        gameAlreadyStarted = false;
         podium.clear();
       }
-      if(gameId !== "") {
+      if(gameId !== "" && games[gameId] !== undefined) {
         games[gameId].clients = games[gameId].clients.filter((clientId) => {
           return clientId === clients.get(connection).id
         });
