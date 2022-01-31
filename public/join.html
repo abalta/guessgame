@@ -30,7 +30,7 @@
             </div>
             <div id='divResult' hidden=true>
                 <h2 class="result_title" id="resultTitle"></h2>
-                <p class="result_text" id="resultText"></p>
+                <h1 class="result_text" id="resultText"></h1>
             </div>
         </div>
 
@@ -51,8 +51,7 @@
         let username = null;
         let clientId = null;
         let score = 0;
-        let ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
-        //let ws = new WebSocket("ws://localhost:9090")
+        let ws = new WebSocket("ws://localhost:9090")
         const btnJoin = document.getElementById("btnJoin");
         const btnSubmit = document.getElementById("btnSubmit");
         const divContent = document.getElementById("divContent");
@@ -61,7 +60,7 @@
         const resultText = document.getElementById("resultText");
 
         btnJoin.addEventListener("click", e => {
-          if (txtGameId.value !== "" && txtUsername.value !== "") {
+          if (txtGameId.value !== "" && txtUsername.value !== "" && txtUsername.value.length < 20) {
             btnJoin.style.display = "none"
             txtGameId.style.display = "none"
             txtUsername.style.display = "none"
@@ -96,6 +95,7 @@
         })
 
         btnSubmit.addEventListener("click", e => {
+          if(isNumeric(txtAnswer.value)) {
             const payLoad = {
                 "method": "answer",
                 "clientId": clientId,
@@ -104,6 +104,9 @@
                 "score": score
             }
             ws.send(JSON.stringify(payLoad));
+          } else {
+            alert("Lütfen geçerli bir sayı giriniz.");
+          }
         })
 
         ws.onopen = open => {
@@ -136,7 +139,7 @@
                divResult.style.display = "block"
                formGuess.style.display = "none"
                 score = response.total;
-                const guess = response.score;
+                const guess = response.guess;
                 if(guess > 0) {
                    resultTitle.textContent = "Tahminin yukarıda!!!"
                    resultText.textContent = "+".concat(guess);
@@ -148,6 +151,18 @@
                   resultText.textContent = guess;
                 }
             }
+
+            //calculate
+            if (response.method == "calculate") {
+              divResult.style.display = "block"
+              formGuess.style.display = "none"
+              resultTitle.textContent = "Süre bitti!!!"
+              resultText.textContent = "Cevabın 0 (Sıfır) olarak kabul edildi."
+            }
+        }
+
+        function isNumeric(val) {
+          return /^-?\d+$/.test(val);
         }
     </script>
 </body>

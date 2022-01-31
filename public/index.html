@@ -37,6 +37,7 @@
                     <button id='btnCreate'>New Game</button>
                     <button id='btnStart' hidden>Start Game</button>
                     <button id='btnNext' hidden>Next Question</button>
+                    <button id='btnFinish' hidden>Finish</button>
                 </div>
             </div>
             <div class="body">
@@ -60,13 +61,12 @@
         let questionIndex = 0;
         let counter = 30;
         let user_count = 0;
-        console.log(location.origin.replace(/^http/, 'ws'));
-        let ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
-        //let ws = new WebSocket("ws://localhost:9090")
+        let ws = new WebSocket("ws://localhost:9090")
         const btnCreate = document.getElementById("btnCreate");
         const btnStart = document.getElementById("btnStart");
         const divPlayers = document.getElementById("divPlayers");
         const btnNext = document.getElementById("btnNext");
+        const btnFinish = document.getElementById("btnFinish");
         const titleWait = document.getElementById("titleWait");
 
         btnCreate.addEventListener("click", e => {
@@ -109,6 +109,11 @@
 
             ws.send(JSON.stringify(payLoad));
         })
+
+        btnFinish.addEventListener("click", e => {
+            divQuestions.style.display = "none"
+        })
+
 
         function timedCount() {
             divTimer.textContent = counter;
@@ -171,6 +176,10 @@
                 divQuestions.textContent = question;
                 counter = 30;
                 timedCount()
+                if (response.isLastQuestion) {
+                  btnFinish.style.display = "block"
+                  btnNext.style.display = "none"
+                }
             }
 
             if (response.method === "calculate") {

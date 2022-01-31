@@ -1,4 +1,3 @@
-const functions = require('firebase-functions');
 const http = require("http");
 const express = require("express");
 const WebSocket = require('ws');
@@ -9,12 +8,9 @@ const firebase = require('firebase');
 app.use(express.static("public"));
 
 app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"))
-app.get("/join", (req, res) => res.sendFile(__dirname + "/join.html"))
+app.get("/join", (req, res) => res.sendFile(__dirname + "/public/join.html"))
 
 app.listen(9091, () => console.log("Listening on http port 9091"))
-
-exports.app = functions.https.onRequest(app);
-
 
 const clients = new Map();
 const questions = new Map();
@@ -119,7 +115,7 @@ wsServer.on("connection", connection => {
 
           questionIndex = result.index;
 
-          if(questionIndex > questions.size) {
+          if(questionIndex === questions.size) {
             let payLoad = {
                 "method": "finish"
             };
@@ -132,6 +128,7 @@ wsServer.on("connection", connection => {
                 "method": "guess",
                 "question": questions.get(questionIndex.toString()).soru,
                 "clientId": id,
+                "isLastQuestion": questionIndex === (questions.size - 1)
             };
 
             [...clients.keys()].forEach((connection) => {
@@ -148,6 +145,7 @@ wsServer.on("connection", connection => {
           let payLoad = {
             "method": "answer",
             "score": score,
+            "guess": Number(result.answer) - questions.get(questionIndex.toString()).cevap,
             "total": score + result.score,
           };
           podium.set(id, {
@@ -205,6 +203,9 @@ wsServer.on("connection", connection => {
         "clientId": clients.get(connection).id
       };
       const gameId = clients.get(connection).gameId;
+      if (clients.get(connection).role === "admin") {
+        podium.clear();
+      }
       if(gameId !== "") {
         games[gameId].clients = games[gameId].clients.filter((clientId) => {
           return clientId === clients.get(connection).id
